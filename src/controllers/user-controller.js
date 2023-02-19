@@ -1,4 +1,6 @@
 const UsersService = require("../services/users-services");
+const TokensService = require("../services/tokens-services");
+const ApiError = require("../exceptions/api-error");
 
 const optionCookieRefresh = {
   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 Дней
@@ -6,7 +8,7 @@ const optionCookieRefresh = {
 };
 
 const optionCookieAccess = {
-  maxAge: 30 * 60 * 1000, // 30 минут 
+  maxAge: 30 * 60 * 1000, // 30 минут
   httpOnly: true,
 };
 
@@ -41,31 +43,22 @@ class UserController {
     }
   }
 
-  async logout(req, res, next) {
+  async checkLogin(req, res, next) {
     try {
-      const { refreshToken } = req.cookies;
+      const tokenA = req.headers.authorization.split(" ")[1];
 
-      const token = await UsersService.logout(refreshToken);
+      if (tokenA === undefined) {
+        throw ApiError.BadRequest(`User не авторизован ${tokenA} не найден`);
+      }
 
-      res.clearCookie("refreshToken");
-      res.clearCookie("accessToken");
+      const validatedToken = await TokensService.validateAccessToken(tokenA);
 
-      res.status(200).json(token);
-    } catch (error) {
-      next(error);
-    }
-  }
+      if (!validatedToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const result = await UsersService.loginCheck(validatedToken.login);
 
-  async refresh(req, res, next) {
-    try {
-      const { refreshToken } = req.cookies;
-
-      const userData = await UsersService.refresh(refreshToken);
-
-      res.cookie("refreshToken", userData.refreshToken, optionCookieRefresh);
-      res.cookie("accessToken", userData.accessToken, optionCookieAccess);
-
-      res.status(200).json(userData);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }

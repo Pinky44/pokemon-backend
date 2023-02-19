@@ -18,12 +18,8 @@ router.post(
   userController.login
 );
 router.get(
-  '/logout',
-  userController.logout
-);
-router.get(
-  '/refresh',
-  userController.refresh
+  '/login-check',
+  userController.checkLogin
 );
 
 module.exports = router;

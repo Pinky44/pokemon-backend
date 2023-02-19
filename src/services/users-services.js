@@ -49,32 +49,14 @@ class UsersService {
     };
   }
 
-  async logout(refreshToken) {
-    const token = await TokensService.removeToken(refreshToken);
-    return token;
-  }
+  async loginCheck(login) {
+    const user = await UserModel.findOne({ login });
 
-  async refresh(refreshToken) {
-    if (!refreshToken) {
-      throw ApiError.UnathorizedError();
+    if (!user) {
+      throw ApiError.BadRequest(`Пользователь с таким ${login} не найден`);
     }
 
-    const userData = TokensService.validateRefreshToken(refreshToken);
-    const tokenFromDb = await TokensService.findToken(refreshToken);
-
-    if (!userData || !tokenFromDb) {
-      throw ApiError.UnathorizedError();
-    }
-
-    const user = await UserModel.findById(userData.id);
-    const userDto = new UserDto(user);
-    const tokens = TokensService.generateTokens({ ...userDto });
-    await TokensService.saveToken(userDto.id, tokens.refreshToken);
-
-    return {
-      ...tokens,
-      user: userDto,
-    };
+    return new UserDto(user);
   }
 }
 

@@ -17,18 +17,9 @@ class TokensService {
     };
   }
 
-  validateAccessToken(token) {
+  async validateAccessToken(token) {
     try {
-      const userData = jwt.verify(token, JWT_ACCESS_SECRET);
-      return userData;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  validateRefreshToken(token) {
-    try {
-      const userData = jwt.verify(token, JWT_REFRESH_SECRET);
+      const userData = await jwt.verify(token, JWT_ACCESS_SECRET);
       return userData;
     } catch (error) {
       return null;
@@ -45,16 +36,6 @@ class TokensService {
 
     const token = await TokenModel.create({ user: userId, refreshToken });
     return token;
-  }
-
-  async removeToken(refreshToken) {
-    const tokenData = await TokenModel.deleteOne({ refreshToken });
-    return tokenData;
-  }
-
-  async findToken(refreshToken) {
-    const tokenData = await TokenModel.findOne({ refreshToken });
-    return tokenData;
   }
 }
 
