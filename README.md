@@ -1,1 +1,10 @@
 # pokemon-backend
+
+env => 
+
+DB_URL="mongodb+srv://user:user@cluster0.kckgvbs.mongodb.net/test"
+CLIENT_URL="http://localhost:3000"
+PORT=5000
+JWT_ACCESS_SECRET="ACCESS_SECRET"
+JWT_REFRESH_SECRET="REFRESH_SECRET"
+JWT_LINK_SECRET="LINK_SECRET"
